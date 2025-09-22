@@ -22,7 +22,7 @@ def make_message(sensor_id, sensor_type, t, value, anomaly=False):
 def sensor_value(base, noise_scale=0.5, step=0.01):
     return base + np.random.normal(scale=noise_scale) + step
 
-def main(brokers="localhost:9092", topic="sensor-data", sensors=5, rate=10, anomaly_prob=0.01):
+def main(brokers="localhost:9092", topic="sensor-data", sensors=5, rate=100, anomaly_prob=0.005):
     producer = KafkaProducer(
         bootstrap_servers=[brokers],
         value_serializer=lambda v: json.dumps(v).encode('utf-8'),
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument("--brokers", default="localhost:29092")
     parser.add_argument("--topic", default="sensor-data")
     parser.add_argument("--sensors", default=6, type=int)
-    parser.add_argument("--rate", default=2, type=int) # Her sensör için saniyede kaç mesaj gidecek
-    parser.add_argument("--anomaly_prob", default=0.02, type=float)
+    parser.add_argument("--rate", default=10000, type=int) # Her sensör için saniyede kaç mesaj gidecek
+    parser.add_argument("--anomaly_prob", default=0.05, type=float)
     args = parser.parse_args()
     main(args.brokers, args.topic, args.sensors, args.rate, args.anomaly_prob)
