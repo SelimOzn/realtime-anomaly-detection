@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument("--brokers", default="localhost:29092")
     parser.add_argument("--topic", default="sensor-data")
     parser.add_argument("--sensors", default=6, type=int)
-    parser.add_argument("--rate", default=10000, type=int) # Her sensör için saniyede kaç mesaj gidecek
+    parser.add_argument("--rate", default=2, type=int) # Her sensör için saniyede kaç mesaj gidecek
     parser.add_argument("--anomaly_prob", default=0.05, type=float)
     args = parser.parse_args()
     main(args.brokers, args.topic, args.sensors, args.rate, args.anomaly_prob)

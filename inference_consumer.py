@@ -3,13 +3,17 @@ import faust
 import numpy as np
 import torch
 from load_model import load_model
+from faust.web import View
+from prometheus_client import CollectorRegistry, Gauge, generate_latest, CONTENT_TYPE_LATEST
 
 app = faust.App(
     "inference_consumer-v4",
     broker="kafka://localhost:29092",
     store="memory://inference_consumer",
     table_cleanup_interval=10.0,
-    consumer_auto_offset_reset="latest"
+    consumer_auto_offset_reset="latest",
+    web_port=8000,
+    web_enable_metrics=True,
 )
 
 WINDOW_SIZE = 50
@@ -57,7 +61,7 @@ async def read_loop(stream):
             labels_pred =  np.array((mse > th))
             labels_true = np.array(X_labels)
             acc = np.sum(labels_pred == labels_true) / WINDOW_SIZE
-            print("Window Accuracy: ", acc)
+            window_accuracy.set(acc)
             window.popleft()
         windows[stype] = window
 
@@ -69,3 +73,16 @@ async def alert_missing_model(sensor_type, time):
         "timestamp": time
     }
     await alerts_topic.send(value=alert_msg)
+
+
+registry = CollectorRegistry()
+window_accuracy = Gauge("window_accuracy", "Accuracy per window", registry=registry)
+
+@app.page('/metrics')
+class MetricsView(View):
+    async def get(self, request):
+        data = generate_latest(registry)
+        return self.bytes(
+            data,
+            headers={"Content-Type": CONTENT_TYPE_LATEST}
+        )
