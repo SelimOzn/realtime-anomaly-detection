@@ -35,7 +35,7 @@ This project implements a real-time anomaly detection system for IoT sensor data
 - Kafka
 - Prometheus Client
 
-- Install Python dependencies:
+Install Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
